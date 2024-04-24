@@ -23,14 +23,6 @@ module.exports = {
       if (isNaN(+photoId)) {
         throw new BadRequestError(`${photoId} is not a valid number`);
       }
-
-      // const p1 = queryInteralEndpoint(PHOTOS_URL + photoId);
-      // const p2 = queryInteralEndpoint(ALBUMS_URL);
-      // const p3 = queryInteralEndpoint(USERS_URL);
-      //
-      // const [photo, albumData, userData] = await Promise.all([p1, p2, p3]);
-      // const album = albumData.find(e => e.id === photo.albumId);
-      // const user = userData.find(e => e.id === album.userId);
       
       const [photo, albumData, userData] = await queryInteralEndpoint(photoId);
       const album = albumData.find(e => e.id === photo.albumId);

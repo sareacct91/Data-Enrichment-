@@ -25,7 +25,7 @@ module.exports = {
       if (!response.ok) {
         throw {
           code: response.status,
-          message: response.statusText 
+          message: `${response.statusText} ${id ? '- id ' + id : ""}`
         }
       }
       dataArr.push(response.json());

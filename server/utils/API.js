@@ -3,6 +3,14 @@ const ALBUMS_URL = 'https://jsonplaceholder.typicode.com/albums/';
 const USERS_URL = 'https://jsonplaceholder.typicode.com/users/';
 
 module.exports = {
+  /**
+   * @param {Number} [id] photoId use to query specific photo
+   * if not provided, query all photos
+   * @returns {Promise<Object[]>}
+   *  queries the 3 internal endpoints
+   *  return the results in an array with the of order
+   *  [photos, albums, users]
+   * */
   async queryInteralEndpoint(id) {
     const promisePhotos = fetch(PHOTOS_URL + id);
     const promiseAlbums = fetch(ALBUMS_URL);

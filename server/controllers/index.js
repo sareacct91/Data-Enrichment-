@@ -1,19 +1,26 @@
 const { queryInteralEndpoint } = require("../utils/API");
-const { BadRequestError, NotFoundError } = require("../utils/Errors");
+const { BadRequestError } = require("../utils/Errors");
 const formatePhoto = require("../utils/formatePhoto");
+const queryFilter = require("../utils/queryFilter");
 
-const PHOTOS_URL = 'https://jsonplaceholder.typicode.com/photos/';
-const ALBUMS_URL = 'https://jsonplaceholder.typicode.com/albums/';
-const USERS_URL = 'https://jsonplaceholder.typicode.com/users/';
+let fstart, nstart;
 
 module.exports = {
   async getPhotos(req, res, next) {
-    const queryParams = req.query;
-    console.log(req.query)
+    try {
+      const { results, isMore } = await queryFilter(req.query);
 
+      console.log('after limit', results.length);
 
-
-    res.status(200).json({msg: `success ${queryParams}`}); 
+      res.status(200).json({
+        msg: `success`, 
+        isMore,
+        data: results, 
+      });
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
   },
 
   async getOnePhoto(req, res, next) {
@@ -23,7 +30,7 @@ module.exports = {
       if (isNaN(+photoId)) {
         throw new BadRequestError(`${photoId} is not a valid number`);
       }
-      
+
       const [photo, albumData, userData] = await queryInteralEndpoint(photoId);
       const album = albumData.find(e => e.id === photo.albumId);
       const user = userData.find(e => e.id === album.userId);
@@ -33,7 +40,7 @@ module.exports = {
       res.status(200).json({msg: 'success', data });
     } catch (err) {
       console.error(err);
-      next(err); 
+      next(err);
     }
   }
 };

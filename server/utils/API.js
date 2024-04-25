@@ -17,7 +17,7 @@ module.exports = {
     const promiseUsers = fetch(USERS_URL);
 
     const responseArr = await Promise.all(
-          [promisePhotos, promiseAlbums, promiseUsers]
+      [promisePhotos, promiseAlbums, promiseUsers]
     );
 
     const dataArr = [];

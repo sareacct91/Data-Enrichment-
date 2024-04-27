@@ -1,0 +1,7 @@
+{
+  "compilorOptions": {
+    "allowJS": "true",
+    "checkJS": "true",
+    "jsx": "react-jsx"
+  }
+}

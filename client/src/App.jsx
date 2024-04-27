@@ -1,10 +1,12 @@
-import Home from './pages/home'
+import Home from './pages/Home'
+import { PaginationProvider } from './utils/GlobalState'
 
 function App() {
-
   return (
-    <Home />
-  )
+    <PaginationProvider>
+      <Home />
+    </PaginationProvider>
+  );
 }
 
 export default App

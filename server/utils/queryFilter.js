@@ -1,7 +1,8 @@
 const { queryInteralEndpoint } = require("./API");
 const formatePhoto = require("./formatePhoto");
-
-let perfStart;
+const fs = require('fs');
+const path = require('path');
+const reducer = require("./reducer");
 
 module.exports = async function queryFilter(queries) {
   const {
@@ -12,17 +13,19 @@ module.exports = async function queryFilter(queries) {
   console.log(queryTitle, queryAlbum, queryEmail);
   const limit = +queries.limit || 25;
   const offset = +queries.offset || 0;
-  console.log(offset, limit);
+  console.log('offset: ', offset, 'limit: ', limit);
 
-  perfStart = performance.now();
-
+  let perfStart = performance.now();
   const [photos, albums, users] = await queryInteralEndpoint();
-
   console.log(`after fetching: ${(performance.now() - perfStart).toFixed(2)}ms`);
   perfStart = performance.now();
 
   const results = [];
-  const index = {}
+  let counter = 0;
+
+  const albumsDict = reducer(albums);
+  const usersDict = reducer(users);
+  const userIndex = queryEmail ? users.findIndex(user => user.email === queryEmail) : null;
 
   // if there's a filter for album.title OR album.user.email
   // if it's for email - we immediantly get that user's index in the array
@@ -32,53 +35,70 @@ module.exports = async function queryFilter(queries) {
   // OR
   // if queryAlbum is true and album.title includes queryAlbum
   if (queryEmail || queryAlbum) {
-    const userIndex = queryEmail ? users.findIndex(e => e.email === queryEmail) : null;
+    const index = {};
 
     for (let i = 0; i < albums.length; i++) {
       const album = albums[i];
 
       if ( (queryEmail && album.userId === users[userIndex].id) ||
-           (queryAlbum && album.title.includes(queryAlbum)) ) {
+        (queryAlbum && album.title.includes(queryAlbum)) ) {
         index[album.id] = {
-          user: userIndex || users.findIndex(e => e.id === album.userId),
+          user: userIndex ?? usersDict[album.userId],
           album: i
         };
       }
     }
-  }
 
-  if (Object.keys(index).length) {
-    for (const photo of photos) {
-      if (photo.albumId in index) {
-        if (queryTitle && !photo.title.includes(queryTitle)) {
-          continue;
+    if (Object.keys(index).length) {
+      for (const photo of photos) {
+        if (photo.albumId in index) {
+          if (queryTitle && !photo.title.includes(queryTitle)) {
+            continue;
+          }
+          if ( (results.length === (limit)) ||
+            (counter < offset) ) {
+            counter++;
+            continue;
+          }
+          const i = photo.albumId;
+          results.push(formatePhoto(photo, albums[index[i].album], users[index[i].user]));
         }
-        const i = photo.albumId;
-        results.push(formatePhoto(photo, albums[index[i].album], users[index[i].user]));
       }
     }
   }
   else {
-    const usersIndex = users.reduce((acc, user, index) => acc[user.id] = index);
-    const albumsIndex = albums.reduce((acc, album, index) => acc[album.id] = index);
     for (const photo of photos) {
       if (queryTitle && !photo.title.includes(queryTitle)) {
         continue;
       }
+
+      if ( (results.length === (limit)) ||
+           (counter < offset) ) {
+        counter++;
+        continue;
+      }
+
+      const albumIdIndex = albumsDict[photo.albumId];
+      const userIdIndex = usersDict[albums[albumIdIndex].userId];
+
       results.push(formatePhoto(
-        photo, 
-        albums[albumsIndex[photo.albumId]], 
-        users[usersIndex[photo.albumId]], 
+        photo,
+        albums[albumIdIndex],
+        users[userIdIndex],
       ))
     }
   }
 
   console.log(`after filter: ${(performance.now() - perfStart).toFixed(2)}ms`);
-  console.log('after filter', results.length);
+  console.log('results: ', results.length);
+  console.log('total results: ', results.length + counter);
 
-  const end = limit + offset;
+  const TOTALRESULTS = results.length + counter;
   return {
-    results: results.slice(offset, end),
-    isMore: end < results.length
+    photos: results,
+    pagination: {
+      endIndex: limit + offset,
+      resLength: TOTALRESULTS,
+    }
   }
 };

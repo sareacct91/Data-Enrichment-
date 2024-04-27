@@ -8,14 +8,12 @@ let fstart, nstart;
 module.exports = {
   async getPhotos(req, res, next) {
     try {
-      const { results, isMore } = await queryFilter(req.query);
-
-      console.log('after limit', results.length);
+      const { photos, pagination } = await queryFilter(req.query);
 
       res.status(200).json({
         msg: `success`, 
-        isMore,
-        data: results, 
+        photos,
+        pagination
       });
     } catch (err) {
       console.log(err);

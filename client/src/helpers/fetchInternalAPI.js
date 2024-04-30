@@ -2,7 +2,7 @@ export default async function(params) {
   const response = await fetch(`/externalapi/photos${params}`);
 
   if (!response.ok) {
-    return {
+    throw {
       error: {
         code: response.status,
         message: response.statusText

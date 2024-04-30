@@ -1,36 +1,35 @@
-import { useState } from "react";
-import queryBuilder from "../../helpers/queryBuilder";
-import { usePaginationContext } from "../../utils/GlobalState";
+import { useState } from 'react';
+import queryBuilder from '../../helpers/queryBuilder';
+import { usePaginationContext } from '../../utils/GlobalState';
 
-export default function SearchForm({ setQuery }) {
+export default function SearchForm() {
   const emptyForm = {
     photoId: '',
     title: '',
     albumTitle: '',
     email: '',
+    limit: 25,
   };
-  const { limit, offset, setLimit } = usePaginationContext();
-
   const [formData, setFormData] = useState({ ...emptyForm });
+  const { limit, setLimit, setQueryData } =
+    usePaginationContext();
 
   /** @param {Event} e  */
   function handleInput(e) {
     const { name, value } = e.target;
-    setFormData({...formData, [name]: value})
+    setFormData({ ...formData, [name]: value });
   }
 
   /** @param {Event} e  */
   function formSubmit(e) {
     e.preventDefault();
-    setQuery(queryBuilder({...formData, limit, offset}));
+    setQueryData({ ...formData, submitted: true });
+    setLimit(formData.limit);
     setFormData({ ...emptyForm });
   }
 
   return (
-    <form
-      className="flex flex-col"
-      onSubmit={formSubmit}
-    >
+    <form className="flex flex-col" onSubmit={formSubmit}>
       <label htmlFor="photoId">Photo ID:</label>
       <input
         type="text"
@@ -54,7 +53,7 @@ export default function SearchForm({ setQuery }) {
       />
       <label htmlFor="email">Email</label>
       <input
-        type="text"
+        type="email"
         name="email"
         value={formData.email}
         onChange={handleInput}
@@ -63,8 +62,8 @@ export default function SearchForm({ setQuery }) {
       <input
         type="text"
         name="limit"
-        value={limit}
-        onChange={(e) => setLimit(e.target.value)}
+        value={formData.limit}
+        onChange={handleInput}
       />
       {/* <label htmlFor="offset">offset</label>
       <input
@@ -75,5 +74,5 @@ export default function SearchForm({ setQuery }) {
       /> */}
       <button type="submit">Search</button>
     </form>
-  )
+  );
 }

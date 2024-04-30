@@ -3,7 +3,7 @@ export default function Photo(props) {
   const { user } = album;
 
   return (
-    <div className="m-3 max-w-sm overflow-hidden rounded bg-gray-800 p-2 shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl">
+    <div className="m-3 overflow-hidden rounded bg-gray-800 p-2 shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl lg:max-w-sm">
       <img
         src={url}
         alt={title}

@@ -1,20 +1,14 @@
 const { queryInteralEndpoint } = require("../utils/API");
 const { BadRequestError } = require("../utils/Errors");
-const formatePhoto = require("../utils/formatePhoto");
+const formatPhotoData = require("../utils/formatPhotoData");
 const queryFilter = require("../utils/queryFilter");
-
-let fstart, nstart;
 
 module.exports = {
   async getPhotos(req, res, next) {
     try {
       const { photos, pagination } = await queryFilter(req.query);
 
-      res.status(200).json({
-        msg: `success`, 
-        photos,
-        pagination
-      });
+      res.status(200).json({ photos, pagination });
     } catch (err) {
       console.log(err);
       next(err);
@@ -33,9 +27,12 @@ module.exports = {
       const album = albumData.find(e => e.id === photo.albumId);
       const user = userData.find(e => e.id === album.userId);
 
-      const data = formatePhoto(photo, album, user);
+      const data = formatPhotoData(photo, album, user);
+      const pagination = {
+        resLength: 1,
+      }
 
-      res.status(200).json({msg: 'success', data });
+      res.status(200).json({ photos: [data], pagination });
     } catch (err) {
       console.error(err);
       next(err);

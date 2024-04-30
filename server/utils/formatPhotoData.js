@@ -1,4 +1,4 @@
-module.exports = function formatePhoto(photo, album, user) {
+module.exports = function formatPhotoData(photo, album, user) {
   const data =  {
     ...photo,
     album: {
@@ -11,4 +11,3 @@ module.exports = function formatePhoto(photo, album, user) {
 
   return data;
 };
-

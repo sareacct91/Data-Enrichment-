@@ -21,6 +21,10 @@ export default function queryBuilder(state) {
     tmp.push(`limit=${limit}`)
   }
 
+  if (offset) {
+    tmp.push(`offset=${offset}`)
+  }
+
   // no search terms, query all photos
   // if (!(title || albumTitle || email)) {
   //   return tmp.join('&'); 
